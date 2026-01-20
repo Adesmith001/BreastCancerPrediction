@@ -22,7 +22,7 @@ Features Used (5 selected):
 
 Deployment Information:
 -----------------------
-Live URL: [TO BE UPDATED AFTER DEPLOYMENT]
-GitHub Repository: [TO BE UPDATED]
+Live URL: https://breastcancerprediction-ehg3.onrender.com
+GitHub Repository: https://github.com/Adesmith001/BreastCancerPrediction
 
 ============================================================
