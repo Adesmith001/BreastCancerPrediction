@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Breast Cancer Prediction | CSC415 Project</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header class="hero">
+        <div class="hero-badge">Medical Diagnostic AI</div>
+        <h1 class="hero-title">Oncology Insight</h1>
+        <p class="hero-subtitle">
+          Tumor classification using Support Vector Machines and morphological
+          analysis.
+          <span class="disclaimer">For educational purposes only.</span>
+        </p>
+      </header>
+
+      <main class="card">
+        <div class="card-header">
+          <h2 class="card-title">Morphological Features</h2>
+          <p class="card-subtitle">
+            Input observed feature values from digitized FNA images
+          </p>
+        </div>
+
+        <form id="predictionForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Mean Radius</label>
+              <input
+                type="number"
+                id="radius_mean"
+                step="0.001"
+                placeholder="14.1"
+                required
+              />
+              <span class="input-hint">Range: 6 - 30</span>
+            </div>
+            <div class="form-group">
+              <label>Mean Texture</label>
+              <input
+                type="number"
+                id="texture_mean"
+                step="0.001"
+                placeholder="19.3"
+                required
+              />
+              <span class="input-hint">Range: 9 - 40</span>
+            </div>
+            <div class="form-group">
+              <label>Mean Area</label>
+              <input
+                type="number"
+                id="area_mean"
+                step="0.1"
+                placeholder="654.8"
+                required
+              />
+              <span class="input-hint">Range: 140 - 2500</span>
+            </div>
+            <div class="form-group">
+              <label>Mean Smoothness</label>
+              <input
+                type="number"
+                id="smoothness_mean"
+                step="0.0001"
+                placeholder="0.096"
+                required
+              />
+              <span class="input-hint">Range: 0.05 - 0.20</span>
+            </div>
+            <div class="form-group">
+              <label>Mean Concavity</label>
+              <input
+                type="number"
+                id="concavity_mean"
+                step="0.0001"
+                placeholder="0.088"
+                required
+              />
+              <span class="input-hint">Range: 0 - 0.5</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" id="predictBtn">
+            Analyze tumor mass →
+          </button>
+        </form>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>Computing classification vectors...</p>
+        </div>
+
+        <div class="result-section" id="resultSection">
+          <div class="result-badge">Diagnostic Output</div>
+          <h3 class="result-title" id="predictionResult">Malignant</h3>
+          <div class="confidence-wrapper">
+            <div class="confidence-bar">
+              <div class="confidence-fill" id="confidenceFill"></div>
+            </div>
+            <p class="confidence-text" id="confidenceText">Confidence: 0%</p>
+          </div>
+          <p class="result-note" id="resultNote">
+            Tumor morphology suggests malignant growth. Immediate specialist
+            consultation is required.
+          </p>
+          <button type="button" class="btn-secondary" id="resetBtn">
+            New Analysis
+          </button>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+      </main>
+
+      <footer class="footer">
+        <p>Breast Cancer Prediction System · Project 5</p>
+        <p class="footer-meta">SOMADE TOLUWANI (22CH032062)</p>
+      </footer>
+    </div>
+
+    <script>
+      const form = document.getElementById("predictionForm");
+      const loading = document.getElementById("loading");
+      const resultSection = document.getElementById("resultSection");
+      const predictBtn = document.getElementById("predictBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        loading.classList.add("show");
+        resultSection.classList.remove("show");
+        predictBtn.disabled = true;
+
+        const data = {
+          radius_mean: document.getElementById("radius_mean").value,
+          texture_mean: document.getElementById("texture_mean").value,
+          area_mean: document.getElementById("area_mean").value,
+          smoothness_mean: document.getElementById("smoothness_mean").value,
+          concavity_mean: document.getElementById("concavity_mean").value,
+        };
+
+        try {
+          const res = await fetch("/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          const result = await res.json();
+
+          if (result.success) {
+            loading.classList.remove("show");
+            resultSection.classList.add("show");
+
+            const titleEl = document.getElementById("predictionResult");
+            titleEl.textContent = result.prediction;
+            titleEl.className =
+              "result-title " + (result.is_benign ? "benign" : "malignant");
+
+            const confidence = (result.confidence * 100).toFixed(1);
+            document.getElementById("confidenceFill").style.width =
+              confidence + "%";
+            document.getElementById(
+              "confidenceText",
+            ).textContent = `Classification Confidence: ${confidence}%`;
+
+            document.getElementById("resultNote").textContent = result.is_benign
+              ? "Tumor characteristics indicate benign (non-cancerous) structure."
+              : "Analysis indicates characteristics consistent with malignant growth.";
+          }
+        } catch (err) {
+          loading.classList.remove("show");
+          alert("Error: " + err.message);
+        } finally {
+          predictBtn.disabled = false;
+        }
+      });
+
+      resetBtn.addEventListener("click", () => {
+        resultSection.classList.remove("show");
+        form.reset();
+      });
+    </script>
+  </body>
+</html>

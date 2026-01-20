@@ -1,0 +1,28 @@
+============================================================
+BREAST CANCER PREDICTION SYSTEM
+CSC415 Holiday Assignment - Project 5
+============================================================
+
+Student Information:
+--------------------
+Name: SOMADE TOLUWANI
+Matric Number: 22CH032062
+
+Technical Details:
+------------------
+Machine Learning Algorithm: Support Vector Machine (SVM)
+Model Persistence Method: Joblib (.pkl format)
+Web Framework: Flask
+Features Used (5 selected): 
+  1. Mean Radius
+  2. Mean Texture
+  3. Mean Area
+  4. Mean Smoothness
+  5. Mean Concavity
+
+Deployment Information:
+-----------------------
+Live URL: [TO BE UPDATED AFTER DEPLOYMENT]
+GitHub Repository: [TO BE UPDATED]
+
+============================================================
